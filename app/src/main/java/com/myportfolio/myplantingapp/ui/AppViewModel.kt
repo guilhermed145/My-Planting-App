@@ -6,18 +6,27 @@ import com.myportfolio.myplantingapp.model.Plant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class AppViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         AppUiState(
-            plantsList = plantsList
+            plantsList = plantsList,
         )
     )
-    val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
+
+    fun navigateToMainScreen() {
+        _uiState.update {
+            it.copy(isInMainScreen = true)
+        }
+    }
+
+    fun navigateToPlantInfoScreen() {
+        _uiState.update {
+            it.copy(isInMainScreen = false)
+        }
+    }
 
 }
-
-data class AppUiState(
-    val plantsList: List<Plant> = emptyList()
-)

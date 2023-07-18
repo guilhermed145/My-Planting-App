@@ -1,5 +1,15 @@
 package com.myportfolio.myplantingapp.ui
 
+import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo.toString
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,17 +22,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
@@ -30,6 +45,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,26 +65,59 @@ import androidx.compose.ui.zIndex
 import com.myportfolio.myplantingapp.R
 import com.myportfolio.myplantingapp.model.Plant
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPlantingApp() {
+    val viewModel: AppViewModel = AppViewModel()
+    val uiState by viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
-            MainAppBar()
+            MainAppBar(
+                onBackButtonClick = {
+                    viewModel.navigateToMainScreen()
+                },
+                isInMainScreen = uiState.isInMainScreen
+            )
         }
     ) {
-        MainScreen(Modifier.padding(it))
-/*        PlantInfoScreen(modifier = Modifier
-            .fillMaxSize()
-            .padding(it))*/
+        Crossfade(
+            targetState = uiState.isInMainScreen,
+            modifier = Modifier.padding(it)
+        ) {
+            if (it) {
+                MainScreen(
+                    onPlantItemClick = {
+                        viewModel.navigateToPlantInfoScreen()
+                    },
+                    modifier = Modifier
+                )
+            } else {
+                PlantInfoScreen(
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+            }
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainAppBar(){
+fun MainAppBar(
+    onBackButtonClick: () -> Unit,
+    isInMainScreen: Boolean,
+) {
     TopAppBar(
         title = {
             Text(stringResource(R.string.app_name))
+        },
+        navigationIcon = {
+            if (!isInMainScreen) {
+                IconButton(onClick = onBackButtonClick) {
+                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                }                 
+            }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.LightGray,
@@ -78,16 +128,20 @@ fun MainAppBar(){
 
 @Composable
 fun MainScreen(
+    onPlantItemClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column (modifier = modifier) {
         AppSearchBar()
-        PlantsGrid()
+        PlantsGrid(
+            onItemClick = onPlantItemClick
+        )
     }
 }
 
 @Composable
 fun PlantsGrid(
+    onItemClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -97,7 +151,7 @@ fun PlantsGrid(
         modifier = modifier
     ) {
         items(30) {item ->
-            PlantItem()
+            PlantItem(onItemClick)
         }
         /**
          *  items(photos) { photo ->
@@ -107,12 +161,16 @@ fun PlantsGrid(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlantItem(
+    onItemClick: () -> Unit,
     modifier: Modifier = Modifier,
     plant: Plant = Plant(R.string.app_name,R.drawable.ic_launcher_background),
 ) {
     Card(
+        elevation = CardDefaults.cardElevation(),
+        onClick = onItemClick,
         modifier = modifier.padding(4.dp)
     ) {
         Column(
