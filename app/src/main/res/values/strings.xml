@@ -1,3 +1,63 @@
 <resources>
     <string name="app_name">My Planting App</string>
+
+    <string name="beetroot">Beetroot</string>
+    <string name="beetroot_grow_beside">Onions, silverbeet (swiss chard), lettuce, cabbage, dwarf beans, dill, peas, strawberries.</string>
+    <string name="beetroot_avoid_growing">Asparagus, carrots, sweetcorn, spinach.</string>
+
+    <string name="broccoli">Broccoli</string>
+    <string name="broccoli_grow_beside">Dwarf (bush) beans, beets, celery, cucumber, onions, marigold, nasturtium, rhubarb, aromatic herbs (sage, dill, chamomile, oregano).</string>
+    <string name="broccoli_avoid_growing">Climbing (pole) beans, tomato, peppers (chilli, capsicum), eggplant (aubergine), strawberry, mustard.</string>
+
+    <string name="cabbage">Cabbage</string>
+    <string name="cabbage_grow_beside">Dwarf (bush) beans, beets, celery, cucumber, onions, marigold, nasturtium, rhubarb, aromatic herbs (sage, dill, chamomile, thyme).</string>
+    <string name="cabbage_avoid_growing">Climbing (pole) beans, tomato, peppers (chili, capsicum), eggplant (aubergine), strawberry, mustard, parsnip.</string>
+
+    <string name="chilli_pepper">Chilli Pepper</string>
+    <string name="chilli_pepper_grow_beside">It\'s not recommended to grow beside any plants.</string>
+    <string name="chilli_pepper_avoid_growing">Best grown in a separate bed as chillis need plenty of light and air circulation.</string>
+
+    <string name="eggplant">Eggplant</string>
+    <string name="eggplant_grow_beside">Beans, capsicum, lettuce, amaranth, thyme.</string>
+    <string name="eggplant_avoid_growing">Potatoes.</string>
+
+    <string name="leek">Leek</string>
+    <string name="leek_grow_beside">Carrots.</string>
+    <string name="leek_avoid_growing">null</string>
+
+    <string name="lettuce">Lettuce</string>
+    <string name="lettuce_grow_beside">Carrots, onions, strawberries, beets, brassicas, radish, marigold, borage, chervil, florence fennel, leeks.</string>
+    <string name="lettuce_avoid_growing">Parsley, celery.</string>
+
+    <string name="onion">Onion</string>
+    <string name="onion_grow_beside">Lemon balm, borage, carrots, beets, silverbeet, lettuce, amaranth.</string>
+    <string name="onion_avoid_growing">Peas, beans.</string>
+
+    <string name="parsnip">Parsnip</string>
+    <string name="parsnip_grow_beside">Swiss chard, capsicum, peas, potatoes, beans, radishes, garlic.</string>
+    <string name="parsnip_avoid_growing">Carrots, celery, brassicas.</string>
+
+    <string name="peas">Peas</string>
+    <string name="peas_grow_beside">Potatoes.</string>
+    <string name="peas_avoid_growing">null</string>
+
+    <string name="potato">Potato</string>
+    <string name="potato_grow_beside">Peas, beans, brassicas, sweetcorn, broad beans, nasturtiums, marigolds.</string>
+    <string name="potato_avoid_growing">Cucumber, pumpkin, sunflowers, tomatoes, rosemary.</string>
+
+    <string name="radish">Radish</string>
+    <string name="radish_grow_beside">Chervil, cress, lettuce, leeks, spinach, strawberries, tomatoes.</string>
+    <string name="radish_avoid_growing">Hyssop, gherkins.</string>
+
+    <string name="spring_onion">Spring Onion</string>
+    <string name="spring_onion_grow_beside">Lemon balm, borage, carrots, beets, silverbeet, lettuce, Amaranth.</string>
+    <string name="spring_onion_avoid_growing">Peas, beans.</string>
+
+    <string name="turnip">Turnip</string>
+    <string name="turnip_grow_beside">Peas, beans, chives, spinach, carrots, chicory.</string>
+    <string name="turnip_avoid_growing">Potatoes, tomatoes.</string>
+
+    <string name="watermelon">Watermelon</string>
+    <string name="watermelon_grow_beside">Sweetcorn, sunflowers.</string>
+    <string name="watermelon_avoid_growing">Potatoes.</string>
 </resources>

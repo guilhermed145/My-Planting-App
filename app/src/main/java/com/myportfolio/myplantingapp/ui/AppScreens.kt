@@ -1,15 +1,6 @@
 package com.myportfolio.myplantingapp.ui
 
-import android.util.Log
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo.toString
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -32,7 +22,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -63,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.myportfolio.myplantingapp.R
+import com.myportfolio.myplantingapp.data.PlantsDataProvider.plantList
 import com.myportfolio.myplantingapp.model.Plant
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,12 +77,14 @@ fun MyPlantingApp() {
             if (it) {
                 MainScreen(
                     onPlantItemClick = {
+                        viewModel.updateSelectedPlant(it)
                         viewModel.navigateToPlantInfoScreen()
                     },
                     modifier = Modifier
                 )
             } else {
                 PlantInfoScreen(
+                    plant = uiState.currentPlant,
                     modifier = Modifier
                         .fillMaxSize()
                 )
@@ -128,7 +119,7 @@ fun MainAppBar(
 
 @Composable
 fun MainScreen(
-    onPlantItemClick: () -> Unit,
+    onPlantItemClick: (Plant) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column (modifier = modifier) {
@@ -141,7 +132,7 @@ fun MainScreen(
 
 @Composable
 fun PlantsGrid(
-    onItemClick: () -> Unit,
+    onItemClick: (Plant) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -150,8 +141,8 @@ fun PlantsGrid(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = modifier
     ) {
-        items(30) {item ->
-            PlantItem(onItemClick)
+        items(plantList.size) {index ->
+            PlantItem(plantList[index], onItemClick)
         }
         /**
          *  items(photos) { photo ->
@@ -164,13 +155,15 @@ fun PlantsGrid(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlantItem(
-    onItemClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    plant: Plant = Plant(R.string.app_name,R.drawable.ic_launcher_background),
+    plant: Plant,
+    onItemClick: (Plant) -> Unit,
+    modifier: Modifier = Modifier
 ) {
+    val viewModel = AppViewModel()
+
     Card(
         elevation = CardDefaults.cardElevation(),
-        onClick = onItemClick,
+        onClick = {onItemClick(plant)},
         modifier = modifier.padding(4.dp)
     ) {
         Column(
@@ -181,13 +174,13 @@ fun PlantItem(
                 .fillMaxWidth()
         ) {
             Image(
-                painter = painterResource(R.drawable.ic_launcher_background),
+                painter = painterResource(plant.imageResourceId),
                 contentDescription = null,
                 modifier = modifier
                     .clip(RoundedCornerShape(4.dp))
             )
             Spacer(modifier = modifier.height(4.dp))
-            Text(text = "Plant's Name")
+            Text(text = stringResource(plant.plantName))
         }
     }
 }
@@ -213,7 +206,7 @@ fun AppSearchBar(
             onActiveChange = {
                 active = it
             },
-            placeholder = { Text("Hinted search text") },
+            placeholder = { Text("Which plant are you looking for?") },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
             modifier = modifier
@@ -244,6 +237,7 @@ fun AppSearchBar(
 
 @Composable
 fun PlantInfoScreen(
+    plant : Plant,
     modifier: Modifier = Modifier
 ){
     LazyColumn(
@@ -254,18 +248,19 @@ fun PlantInfoScreen(
     ) {
         item {
             Image(
-                painter = painterResource(R.drawable.ic_launcher_background),
+                painter = painterResource(plant.imageResourceId),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .height(280.dp)
                     .fillMaxWidth()
                     .padding(20.dp)
+                    .clip(RoundedCornerShape(8.dp))
             )
         }
         item {
             Text(
-                text = "Plant's Name",
+                text = stringResource(plant.plantName),
                 color = Color.DarkGray,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -276,10 +271,29 @@ fun PlantInfoScreen(
             Spacer(modifier = Modifier.height(20.dp))
         }
         item {
-            PlantInfoRow()
-            PlantInfoRow()
-            PlantInfoRow()
-            PlantInfoRow()
+            PlantInfoRow(
+                infoTitle = "Soil temperature",
+                infoValue = plant.soilTemperature.first.toString() + "°C to "
+                        + plant.soilTemperature.second + "°C"
+            )
+            PlantInfoRow(
+                infoTitle = "Space between plants",
+                infoValue = plant.spaceBetweenPlants.first.toString() + " to "
+                        + plant.spaceBetweenPlants.second + "cm apart."
+            )
+            PlantInfoRow(
+                infoTitle = "Harvest time",
+                infoValue = plant.harvestTime.first.toString() + " to "
+                        + plant.harvestTime.second + " weeks."
+            )
+            PlantInfoRow(
+                infoTitle = "Can grow beside",
+                infoValue = stringResource(plant.canGrowBeside)
+            )
+            PlantInfoRow(
+                infoTitle = "Avoid growing close to",
+                infoValue = stringResource(plant.avoidGrowingCloseTo)
+            )
         }
     }
 }
@@ -291,8 +305,8 @@ fun PlantInfoRow(
     infoValue : String = "Info Value",
 ) {
     Row(
-        //verticalAlignment = Alignment.Top,
-        modifier = modifier.padding(vertical = 12.dp)
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.padding(vertical = 20.dp)
     ) {
         Text(
             text = infoTitle,
@@ -300,6 +314,8 @@ fun PlantInfoRow(
             fontSize = 20.sp,
             modifier = Modifier.weight(1f)
         )
-        Text(infoValue, modifier = Modifier.weight(1f))
+        Text(infoValue, modifier = Modifier
+            .weight(1f)
+            .fillMaxWidth())
     }
 }
