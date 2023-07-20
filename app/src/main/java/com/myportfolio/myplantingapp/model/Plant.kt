@@ -6,7 +6,7 @@ import androidx.annotation.StringRes
 /**
  * Data model for a plant
  */
-data class Plant (
+data class Plant(
     @StringRes val plantName: Int,
     @DrawableRes val imageResourceId: Int,
     @StringRes val canGrowBeside: Int,

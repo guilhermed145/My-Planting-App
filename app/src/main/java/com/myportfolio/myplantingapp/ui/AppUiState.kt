@@ -13,5 +13,9 @@ data class AppUiState (
         Pair(20, 30),
         Pair(7, 10)
     ),
-    val isInMainScreen: Boolean = true
+    val isInMainScreen: Boolean = true,
+    val searchBarText: String = "",
+    val isSearchBarActive: Boolean = false,
+    val searchBarHistory: MutableList<String> = mutableListOf(),
+    val searchResultList: MutableList<Plant> = mutableListOf()
 )

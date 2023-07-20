@@ -1,5 +1,6 @@
 package com.myportfolio.myplantingapp.ui
 
+import android.content.Context
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -19,31 +20,29 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,10 +53,11 @@ import com.myportfolio.myplantingapp.R
 import com.myportfolio.myplantingapp.data.PlantsDataProvider.plantList
 import com.myportfolio.myplantingapp.model.Plant
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyPlantingApp() {
-    val viewModel: AppViewModel = AppViewModel()
+fun MyPlantingApp(
+    //windowSize: WindowWidthSizeClass = WindowWidthSizeClass.Compact
+) {
+    val viewModel = AppViewModel()
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -69,18 +69,19 @@ fun MyPlantingApp() {
                 isInMainScreen = uiState.isInMainScreen
             )
         }
-    ) {
+    ) { paddingValues ->
         Crossfade(
             targetState = uiState.isInMainScreen,
-            modifier = Modifier.padding(it)
-        ) {
-            if (it) {
+            modifier = Modifier.padding(paddingValues)
+        ) { isInMainScreen ->
+            if (isInMainScreen) {
                 MainScreen(
+                    viewModel = viewModel,
+                    uiState = uiState,
                     onPlantItemClick = {
                         viewModel.updateSelectedPlant(it)
                         viewModel.navigateToPlantInfoScreen()
-                    },
-                    modifier = Modifier
+                    }
                 )
             } else {
                 PlantInfoScreen(
@@ -106,7 +107,7 @@ fun MainAppBar(
         navigationIcon = {
             if (!isInMainScreen) {
                 IconButton(onClick = onBackButtonClick) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
                 }                 
             }
         },
@@ -119,12 +120,18 @@ fun MainAppBar(
 
 @Composable
 fun MainScreen(
+    viewModel : AppViewModel,
+    uiState: AppUiState,
     onPlantItemClick: (Plant) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column (modifier = modifier) {
-        AppSearchBar()
+        AppSearchBar(
+            viewModel = viewModel,
+            uiState = uiState
+        )
         PlantsGrid(
+            uiState = uiState,
             onItemClick = onPlantItemClick
         )
     }
@@ -132,6 +139,7 @@ fun MainScreen(
 
 @Composable
 fun PlantsGrid(
+    uiState : AppUiState,
     onItemClick: (Plant) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -141,14 +149,24 @@ fun PlantsGrid(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = modifier
     ) {
-        items(plantList.size) {index ->
-            PlantItem(plantList[index], onItemClick)
+        if (uiState.searchBarText != "") {
+            if (uiState.searchResultList.isEmpty()) {
+                item {
+                    Text(
+                        text = "No plant was found.",
+                        modifier = modifier.padding(8.dp),
+                    )
+                }
+            } else {
+                items(uiState.searchResultList.size) {index ->
+                    PlantItem(uiState.searchResultList[index], onItemClick)
+                }
+            }
+        } else {
+            items(plantList.size) {index ->
+                PlantItem(plantList[index], onItemClick)
+            }
         }
-        /**
-         *  items(photos) { photo ->
-         *      PhotoItem(photo)
-         *  }
-         */
     }
 }
 
@@ -159,8 +177,6 @@ fun PlantItem(
     onItemClick: (Plant) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val viewModel = AppViewModel()
-
     Card(
         elevation = CardDefaults.cardElevation(),
         onClick = {onItemClick(plant)},
@@ -188,10 +204,12 @@ fun PlantItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppSearchBar(
+    viewModel: AppViewModel,
+    uiState: AppUiState,
     modifier : Modifier = Modifier
 ){
-    var text by rememberSaveable { mutableStateOf("") }
-    var active by rememberSaveable { mutableStateOf(false) }
+
+    val currentContext : Context = LocalContext.current
 
     Box (
         modifier = modifier
@@ -199,36 +217,46 @@ fun AppSearchBar(
             .fillMaxWidth()
     ){
         SearchBar(
-            query = text,
-            onQueryChange = { text = it },
-            onSearch = { active = false },
-            active = active,
+            query = uiState.searchBarText,
+            onQueryChange = { viewModel.updateSearchBarText(it) },
+            onSearch = {
+                viewModel.updateSearchBarState(false)
+                viewModel.findSearchResults(currentContext)
+                viewModel.addToSearchBarHistory(it)
+            },
+            active = uiState.isSearchBarActive,
             onActiveChange = {
-                active = it
+                viewModel.updateSearchBarState(it)
             },
             placeholder = { Text("Which plant are you looking for?") },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+            trailingIcon = {
+                if (uiState.isSearchBarActive) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = null,
+                        modifier = Modifier.clickable {
+                            viewModel.updateSearchBarText("")
+                            viewModel.updateSearchBarState(false)
+                        }
+                    )
+                }
+            },
             modifier = modifier
                 .align(Alignment.TopCenter)
                 .fillMaxWidth()
         ) {
-            LazyColumn(
-                modifier = modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                items(4) { idx ->
-                    val resultText = "Suggestion $idx"
-                    ListItem(
-                        headlineContent = { Text(resultText) },
-                        supportingContent = { Text("Additional info") },
-                        leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
-                        modifier = modifier.clickable {
-                            text = resultText
-                            active = false
-                        }
+            uiState.searchBarHistory.asReversed().forEach {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(12.dp)
+                ){
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = null,
+                        modifier = Modifier.padding(4.dp)
                     )
+                    Text(text = it)
                 }
             }
         }
@@ -279,12 +307,12 @@ fun PlantInfoScreen(
             PlantInfoRow(
                 infoTitle = "Space between plants",
                 infoValue = plant.spaceBetweenPlants.first.toString() + " to "
-                        + plant.spaceBetweenPlants.second + "cm apart."
+                        + plant.spaceBetweenPlants.second + "cm apart"
             )
             PlantInfoRow(
                 infoTitle = "Harvest time",
                 infoValue = plant.harvestTime.first.toString() + " to "
-                        + plant.harvestTime.second + " weeks."
+                        + plant.harvestTime.second + " weeks"
             )
             PlantInfoRow(
                 infoTitle = "Can grow beside",

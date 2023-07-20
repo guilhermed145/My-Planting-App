@@ -1,5 +1,6 @@
 package com.myportfolio.myplantingapp.ui
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.myportfolio.myplantingapp.R
 import com.myportfolio.myplantingapp.data.PlantsDataProvider.plantList
@@ -22,7 +23,8 @@ class AppViewModel : ViewModel() {
                     Pair(20, 30),
                     Pair(7, 10)
                 )
-            }
+            },
+            //searchBarHistory = listOf()
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -42,6 +44,43 @@ class AppViewModel : ViewModel() {
     fun updateSelectedPlant(selectedPlant : Plant){
         _uiState.update {
             it.copy(currentPlant = selectedPlant)
+        }
+    }
+
+    fun updateSearchBarText(text : String) {
+        _uiState.update {
+            it.copy(searchBarText = text)
+        }
+    }
+
+    fun updateSearchBarState(value : Boolean) {
+        _uiState.update {
+            it.copy(isSearchBarActive = value)
+        }
+    }
+
+    fun addToSearchBarHistory(searchText : String) {
+        if (searchText != "") {
+            val newHistory: MutableList<String> = uiState.value.searchBarHistory
+            newHistory.add(searchText)
+            _uiState.update {
+                it.copy(searchBarHistory = newHistory)
+            }
+        }
+    }
+
+    fun findSearchResults(context: Context) {
+        val newSearchResultList: MutableList<Plant> = mutableListOf()
+        plantList.forEach {
+            if (
+                context.resources.getString(it.plantName)
+                    .contains(uiState.value.searchBarText, ignoreCase = true)
+            ) {
+                newSearchResultList.add(it)
+            }
+        }
+        _uiState.update {
+            it.copy(searchResultList = newSearchResultList)
         }
     }
 
