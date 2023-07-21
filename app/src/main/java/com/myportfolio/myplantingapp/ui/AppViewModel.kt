@@ -6,14 +6,14 @@ import com.myportfolio.myplantingapp.R
 import com.myportfolio.myplantingapp.data.PlantsDataProvider.plantList
 import com.myportfolio.myplantingapp.model.Plant
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
 class AppViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         AppUiState(
-            plantList.getOrElse(0) {
+            currentPlant = plantList.getOrElse(0) {
                 Plant(
                     R.string.beetroot,
                     R.drawable.ic_launcher_background,
@@ -23,11 +23,10 @@ class AppViewModel : ViewModel() {
                     Pair(20, 30),
                     Pair(7, 10)
                 )
-            },
-            //searchBarHistory = listOf()
+            }
         )
     )
-    val uiState = _uiState.asStateFlow()
+    val uiState: StateFlow<AppUiState> = _uiState
 
     fun navigateToMainScreen() {
         _uiState.update {
@@ -41,27 +40,28 @@ class AppViewModel : ViewModel() {
         }
     }
 
-    fun updateSelectedPlant(selectedPlant : Plant){
+    fun updateSelectedPlant(selectedPlant: Plant) {
         _uiState.update {
             it.copy(currentPlant = selectedPlant)
         }
     }
 
-    fun updateSearchBarText(text : String) {
+    fun updateSearchBarText(text: String) {
         _uiState.update {
             it.copy(searchBarText = text)
         }
     }
 
-    fun updateSearchBarState(value : Boolean) {
+    fun updateSearchBarState(value: Boolean) {
         _uiState.update {
             it.copy(isSearchBarActive = value)
         }
     }
 
-    fun addToSearchBarHistory(searchText : String) {
+    fun addToSearchBarHistory(searchText: String) {
         if (searchText != "") {
-            val newHistory: MutableList<String> = uiState.value.searchBarHistory
+            val newHistory: MutableList<String> = mutableListOf()
+            newHistory.addAll(uiState.value.searchBarHistory)
             newHistory.add(searchText)
             _uiState.update {
                 it.copy(searchBarHistory = newHistory)

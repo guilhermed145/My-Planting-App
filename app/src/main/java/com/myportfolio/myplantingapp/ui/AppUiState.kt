@@ -3,7 +3,7 @@ package com.myportfolio.myplantingapp.ui
 import com.myportfolio.myplantingapp.R
 import com.myportfolio.myplantingapp.model.Plant
 
-data class AppUiState (
+data class AppUiState(
     val currentPlant: Plant = Plant(
         R.string.beetroot,
         R.drawable.ic_launcher_background,
@@ -16,6 +16,6 @@ data class AppUiState (
     val isInMainScreen: Boolean = true,
     val searchBarText: String = "",
     val isSearchBarActive: Boolean = false,
-    val searchBarHistory: MutableList<String> = mutableListOf(),
-    val searchResultList: MutableList<Plant> = mutableListOf()
+    val searchBarHistory: List<String> = listOf(),
+    val searchResultList: List<Plant> = listOf(),
 )

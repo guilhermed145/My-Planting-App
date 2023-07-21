@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">My Planting App</string>
+    <string name="no_plant_was_found">No plant was found.</string>
 
     <string name="beetroot">Beetroot</string>
     <string name="beetroot_grow_beside">Onions, silverbeet (swiss chard), lettuce, cabbage, dwarf beans, dill, peas, strawberries.</string>
@@ -60,4 +61,9 @@
     <string name="watermelon">Watermelon</string>
     <string name="watermelon_grow_beside">Sweetcorn, sunflowers.</string>
     <string name="watermelon_avoid_growing">Potatoes.</string>
+    <string name="soil_temperature">Soil temperature</string>
+    <string name="space_between_plants">Space between plants</string>
+    <string name="harvest_time">Harvest time</string>
+    <string name="can_grow_beside">Can grow beside</string>
+    <string name="avoid_growing_close_to">Avoid growing close to</string>
 </resources>

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -45,20 +46,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.myportfolio.myplantingapp.R
 import com.myportfolio.myplantingapp.data.PlantsDataProvider.plantList
 import com.myportfolio.myplantingapp.model.Plant
 
 @Composable
 fun MyPlantingApp(
-    //windowSize: WindowWidthSizeClass = WindowWidthSizeClass.Compact
+    windowSize: WindowWidthSizeClass = WindowWidthSizeClass.Compact
 ) {
-    val viewModel = AppViewModel()
+    val viewModel: AppViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
+    val currentContext: Context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -73,19 +77,35 @@ fun MyPlantingApp(
         Crossfade(
             targetState = uiState.isInMainScreen,
             modifier = Modifier.padding(paddingValues)
-        ) { isInMainScreen ->
-            if (isInMainScreen) {
+        ) { targetState ->
+            if (targetState) {
                 MainScreen(
-                    viewModel = viewModel,
-                    uiState = uiState,
+                    onSearchBarQueryChange = {
+                        viewModel.updateSearchBarText(it)
+                    },
+                    onSearchBarSearch = {
+                        viewModel.updateSearchBarState(false)
+                        viewModel.findSearchResults(currentContext)
+                        viewModel.addToSearchBarHistory(it)
+                    },
+                    onSearchBarActiveChange = {
+                        viewModel.updateSearchBarState(it)
+                    },
+                    onSearchBarCloseIconClick = {
+                        viewModel.updateSearchBarText("")
+                        viewModel.updateSearchBarState(false)
+                    },
                     onPlantItemClick = {
                         viewModel.updateSelectedPlant(it)
                         viewModel.navigateToPlantInfoScreen()
-                    }
+                    },
+                    uiState = uiState,
+                    windowSize = windowSize
                 )
             } else {
                 PlantInfoScreen(
                     plant = uiState.currentPlant,
+                    windowSize = windowSize,
                     modifier = Modifier
                         .fillMaxSize()
                 )
@@ -108,7 +128,7 @@ fun MainAppBar(
             if (!isInMainScreen) {
                 IconButton(onClick = onBackButtonClick) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
-                }                 
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -120,18 +140,26 @@ fun MainAppBar(
 
 @Composable
 fun MainScreen(
-    viewModel : AppViewModel,
-    uiState: AppUiState,
+    onSearchBarQueryChange: (String) -> Unit,
+    onSearchBarSearch: (String) -> Unit,
+    onSearchBarActiveChange: (Boolean) -> Unit,
+    onSearchBarCloseIconClick: () -> Unit,
     onPlantItemClick: (Plant) -> Unit,
-    modifier: Modifier = Modifier
+    uiState: AppUiState,
+    windowSize: WindowWidthSizeClass,
+    modifier: Modifier = Modifier,
 ) {
-    Column (modifier = modifier) {
+    Column(modifier = modifier) {
         AppSearchBar(
-            viewModel = viewModel,
-            uiState = uiState
+            onQueryChange = onSearchBarQueryChange,
+            onSearch = onSearchBarSearch,
+            onActiveChange = onSearchBarActiveChange,
+            onCloseIconClick = onSearchBarCloseIconClick,
+            uiState = uiState,
         )
         PlantsGrid(
             uiState = uiState,
+            windowSize = windowSize,
             onItemClick = onPlantItemClick
         )
     }
@@ -139,12 +167,17 @@ fun MainScreen(
 
 @Composable
 fun PlantsGrid(
-    uiState : AppUiState,
     onItemClick: (Plant) -> Unit,
+    uiState: AppUiState,
+    windowSize: WindowWidthSizeClass,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(120.dp),
+        columns = when (windowSize) {
+            WindowWidthSizeClass.Compact -> GridCells.Adaptive(120.dp)
+            WindowWidthSizeClass.Expanded -> GridCells.Adaptive(200.dp)
+            else -> GridCells.Adaptive(160.dp)
+        },
         contentPadding = PaddingValues(4.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = modifier
@@ -153,17 +186,17 @@ fun PlantsGrid(
             if (uiState.searchResultList.isEmpty()) {
                 item {
                     Text(
-                        text = "No plant was found.",
+                        text = stringResource(R.string.no_plant_was_found),
                         modifier = modifier.padding(8.dp),
                     )
                 }
             } else {
-                items(uiState.searchResultList.size) {index ->
+                items(uiState.searchResultList.size) { index ->
                     PlantItem(uiState.searchResultList[index], onItemClick)
                 }
             }
         } else {
-            items(plantList.size) {index ->
+            items(plantList.size) { index ->
                 PlantItem(plantList[index], onItemClick)
             }
         }
@@ -179,7 +212,7 @@ fun PlantItem(
 ) {
     Card(
         elevation = CardDefaults.cardElevation(),
-        onClick = {onItemClick(plant)},
+        onClick = { onItemClick(plant) },
         modifier = modifier.padding(4.dp)
     ) {
         Column(
@@ -204,41 +237,40 @@ fun PlantItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppSearchBar(
-    viewModel: AppViewModel,
+    onQueryChange: (String) -> Unit,
+    onSearch: (String) -> Unit,
+    onActiveChange: (Boolean) -> Unit,
+    onCloseIconClick: () -> Unit,
     uiState: AppUiState,
-    modifier : Modifier = Modifier
-){
+    modifier: Modifier = Modifier
+) {
 
-    val currentContext : Context = LocalContext.current
-
-    Box (
+    Box(
         modifier = modifier
             .zIndex(1f)
             .fillMaxWidth()
-    ){
+    ) {
         SearchBar(
             query = uiState.searchBarText,
-            onQueryChange = { viewModel.updateSearchBarText(it) },
+            onQueryChange = { onQueryChange(it) },
             onSearch = {
-                viewModel.updateSearchBarState(false)
-                viewModel.findSearchResults(currentContext)
-                viewModel.addToSearchBarHistory(it)
+                onSearch(it)
             },
             active = uiState.isSearchBarActive,
             onActiveChange = {
-                viewModel.updateSearchBarState(it)
+                onActiveChange(it)
             },
             placeholder = { Text("Which plant are you looking for?") },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             trailingIcon = {
-                if (uiState.isSearchBarActive) {
+                if (uiState.searchBarText != "") {
                     Icon(
                         Icons.Default.Close,
                         contentDescription = null,
-                        modifier = Modifier.clickable {
-                            viewModel.updateSearchBarText("")
-                            viewModel.updateSearchBarState(false)
-                        }
+                        modifier = Modifier.clickable(
+                            role = Role.Button,
+                            onClick = onCloseIconClick
+                        )
                     )
                 }
             },
@@ -250,7 +282,7 @@ fun AppSearchBar(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(12.dp)
-                ){
+                ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
                         contentDescription = null,
@@ -265,9 +297,10 @@ fun AppSearchBar(
 
 @Composable
 fun PlantInfoScreen(
-    plant : Plant,
+    plant: Plant,
+    windowSize: WindowWidthSizeClass,
     modifier: Modifier = Modifier
-){
+) {
     LazyColumn(
         contentPadding = PaddingValues(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -280,10 +313,15 @@ fun PlantInfoScreen(
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .height(280.dp)
-                    .fillMaxWidth()
                     .padding(20.dp)
                     .clip(RoundedCornerShape(8.dp))
+                    .then(
+                        when (windowSize) {
+                            WindowWidthSizeClass.Compact -> Modifier.height(280.dp)
+                            WindowWidthSizeClass.Expanded -> Modifier.height(360.dp)
+                            else -> Modifier.height(320.dp)
+                        }
+                    )
             )
         }
         item {
@@ -296,30 +334,38 @@ fun PlantInfoScreen(
             )
         }
         item {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(12.dp))
         }
         item {
             PlantInfoRow(
-                infoTitle = "Soil temperature",
+                infoTitle = stringResource(R.string.soil_temperature),
                 infoValue = plant.soilTemperature.first.toString() + "°C to "
                         + plant.soilTemperature.second + "°C"
             )
+        }
+        item {
             PlantInfoRow(
-                infoTitle = "Space between plants",
+                infoTitle = stringResource(R.string.space_between_plants),
                 infoValue = plant.spaceBetweenPlants.first.toString() + " to "
                         + plant.spaceBetweenPlants.second + "cm apart"
             )
+        }
+        item {
             PlantInfoRow(
-                infoTitle = "Harvest time",
+                infoTitle = stringResource(R.string.harvest_time),
                 infoValue = plant.harvestTime.first.toString() + " to "
                         + plant.harvestTime.second + " weeks"
             )
+        }
+        item {
             PlantInfoRow(
-                infoTitle = "Can grow beside",
+                infoTitle = stringResource(R.string.can_grow_beside),
                 infoValue = stringResource(plant.canGrowBeside)
             )
+        }
+        item {
             PlantInfoRow(
-                infoTitle = "Avoid growing close to",
+                infoTitle = stringResource(R.string.avoid_growing_close_to),
                 infoValue = stringResource(plant.avoidGrowingCloseTo)
             )
         }
@@ -329,8 +375,8 @@ fun PlantInfoScreen(
 @Composable
 fun PlantInfoRow(
     modifier: Modifier = Modifier,
-    infoTitle : String = "Info Title",
-    infoValue : String = "Info Value",
+    infoTitle: String = "Info Title",
+    infoValue: String = "Info Value",
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -342,8 +388,16 @@ fun PlantInfoRow(
             fontSize = 20.sp,
             modifier = Modifier.weight(1f)
         )
-        Text(infoValue, modifier = Modifier
-            .weight(1f)
-            .fillMaxWidth())
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = if (infoValue == "null") {
+                ""
+            } else {
+                infoValue
+            },
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        )
     }
 }
