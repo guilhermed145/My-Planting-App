@@ -3,6 +3,9 @@ package com.myportfolio.myplantingapp.ui
 import com.myportfolio.myplantingapp.R
 import com.myportfolio.myplantingapp.model.Plant
 
+/**
+ * App preview for medium screens
+ */
 data class AppUiState(
     val currentPlant: Plant = Plant(
         R.string.beetroot,
