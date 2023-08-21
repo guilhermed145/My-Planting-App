@@ -1,6 +1,7 @@
 package com.myportfolio.myplantingapp.ui
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -32,6 +33,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -58,6 +62,7 @@ import com.myportfolio.myplantingapp.model.Plant
  * It contains the view model, ui state and the current context.
  * Also has a Scaffold that contains the appbar and the two main screens.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPlantingApp(
     windowSize: WindowWidthSizeClass = WindowWidthSizeClass.Compact
@@ -65,6 +70,7 @@ fun MyPlantingApp(
     val viewModel: AppViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
     val currentContext: Context = LocalContext.current
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
         topBar = {
@@ -72,9 +78,11 @@ fun MyPlantingApp(
                 onBackButtonClick = {
                     viewModel.navigateToMainScreen()
                 },
-                isInMainScreen = uiState.isInMainScreen
+                isInMainScreen = uiState.isInMainScreen,
+                scrollBehavior = scrollBehavior
             )
-        }
+        },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { paddingValues ->
         Crossfade(
             targetState = uiState.isInMainScreen,
@@ -110,7 +118,10 @@ fun MyPlantingApp(
             } else {
                 PlantInfoScreen(
                     plant = uiState.currentPlant,
-                    windowSize = windowSize
+                    windowSize = windowSize,
+                    onBackButtonPressed = {
+                        viewModel.navigateToMainScreen()
+                    },
                 )
             }
         }
@@ -126,7 +137,8 @@ fun MyPlantingApp(
 fun MainAppBar(
     onBackButtonClick: () -> Unit,
     isInMainScreen: Boolean,
-    modifier: Modifier = Modifier
+    scrollBehavior: TopAppBarScrollBehavior,
+    modifier: Modifier = Modifier,
 ) {
     TopAppBar(
         title = {
@@ -139,6 +151,7 @@ fun MainAppBar(
                 }
             }
         },
+        scrollBehavior = scrollBehavior,
         modifier = modifier
     )
 }
@@ -345,8 +358,13 @@ fun AppSearchBar(
 fun PlantInfoScreen(
     plant: Plant,
     windowSize: WindowWidthSizeClass,
-    modifier: Modifier = Modifier
+    onBackButtonPressed : () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    BackHandler {
+        onBackButtonPressed()
+    }
+
     LazyColumn(
         contentPadding = PaddingValues(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
