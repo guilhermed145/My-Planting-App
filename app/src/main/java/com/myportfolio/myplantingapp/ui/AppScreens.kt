@@ -58,8 +58,12 @@ import com.myportfolio.myplantingapp.data.PlantsDataProvider.plantList
 import com.myportfolio.myplantingapp.model.Plant
 
 /**
- * This is the mains app function.
- * It contains the view model, ui state and the current context.
+ * (PT-BR)
+ * Este composable contém a view model, o estado de UI e o context atual.
+ * Também há um Scaffold que contém a appbar e as duas telas principais do aplicativo.
+ *
+ * (EN)
+ * This composable contains the view model, UI state and the current context.
  * Also has a Scaffold that contains the appbar and the two main screens.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -129,7 +133,12 @@ fun MyPlantingApp(
 }
 
 /**
- * This function represents the app's Appbar.
+ * (PT-BR)
+ * Este composable representa a appbar do aplicativo.
+ * Ela mostra o nome do app e um ícone de navegação para que o usuário retorne à tela principal.
+ *
+ * (EN)
+ * This composable represents the app's appbar.
  * It shows the app's name and a navigation icon so the user can go back to the main screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -157,7 +166,11 @@ fun MainAppBar(
 }
 
 /**
- * The main screen that contains the search bar and the plants grid.
+ * (PT-BR)
+ * Esta é a tela principal que contém a barra de busca e o composable PlantsGrid.
+ *
+ * (EN)
+ * This is the main screen that contains the search bar and the PlantsGrid composable.
  */
 @Composable
 fun MainScreen(
@@ -172,7 +185,7 @@ fun MainScreen(
     searchResultList: List<Plant> = mutableListOf(),
     isSearchBarActive: Boolean = false,
     searchBarHistory: List<String> = mutableListOf(),
-    ) {
+) {
     Column(modifier = modifier) {
         AppSearchBar(
             onQueryChange = onSearchBarQueryChange,
@@ -193,7 +206,14 @@ fun MainScreen(
 }
 
 /**
- * A grid that shows a list of plants.
+ * (PT-BR)
+ * Este composable representa a grade que mostra uma lista de plantas.
+ * Ela mostra todas as plantas disponíveis por padrão, mas pode variar de acordo com a busca feita
+ * na barra de pesquisas.
+ * O tamanho do composable Card pode variar dependendo do tamanho da tela do dispositivo.
+ *
+ * (EN)
+ * This composable represents a grid that shows a list of plants.
  * It shows all the plants by default, but can only show a few depending on the search bar result.
  * The card's size can change depending on the window size.
  */
@@ -237,8 +257,13 @@ fun PlantsGrid(
 }
 
 /**
- * The PlantItem function represents a card that contains the plant's name and picture.
- * Can be clicked to navigate to the plant's information screen.
+ * (PT-BR)
+ * O composable PlantItem representa um composable Card que contém o nome e a foto da planta.
+ * Pode ser pressionado pelo usuário para navegar à tela de informações desta planta.
+ *
+ * (EN)
+ * The PlantItem composable represents a card that contains the plant's name and picture.
+ * Can be pressed by the user to navigate to the plant's information screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -284,7 +309,12 @@ fun PlantItem(
 }
 
 /**
- * This function represents the app's search bar.
+ * (PT-BR)
+ * Este composable representa a barra de pesquisa do aplicativo.
+ * A barra de pesquisa pode ser usada para procurar por alguma planta específica pelo nome.
+ *
+ * (EN)
+ * This composable represents the app's search bar.
  * The search bar can be used to look for a plant containing a specific name.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -351,6 +381,12 @@ fun AppSearchBar(
 }
 
 /**
+ * (PT-BR)
+ * Esta é a tela de informações da planta. Ela mostra uma coluna contendo todas as informações
+ * disponíveis da planta escolhida.
+ * A foto da planta pode mudar dependendo do tamanho da tela do dispositivo.
+ *
+ * (EN)
  * This is the plant's information screen. It shows a column containing all the plant's information.
  * The plant's image size can change depending on the window size.
  */
@@ -437,7 +473,11 @@ fun PlantInfoScreen(
 }
 
 /**
- * A simple function representing a row that contains a plant's specific information.
+ * (PT-BR)
+ * Um composable simples que representa uma linha contendo uma informação específica sobre a planta.
+ *
+ * (EN)
+ * A simple composable representing a row that contains a plant's specific information.
  */
 @Composable
 fun PlantInfoRow(

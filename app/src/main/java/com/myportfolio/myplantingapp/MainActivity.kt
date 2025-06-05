@@ -16,7 +16,7 @@ import com.myportfolio.myplantingapp.ui.theme.MyPlantingAppTheme
 import com.myportfolio.myplantingapp.ui.MyPlantingApp
 
 /**
- * The activity for the app
+ * The activity for the app.
  */
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * Main app preview
+ * Main app preview.
  */
 @Preview(showBackground = true)
 @Composable
@@ -49,7 +49,7 @@ fun AppPreview() {
 }
 
 /**
- * App preview for medium screens
+ * App preview for medium screens.
  */
 @Preview(showBackground = true, widthDp = 700)
 @Composable
@@ -60,7 +60,7 @@ fun AppPreviewMediumSize() {
 }
 
 /**
- * App preview for large screens
+ * App preview for large screens.
  */
 @Preview(showBackground = true, widthDp = 1000)
 @Composable

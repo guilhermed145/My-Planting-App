@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 
 /**
- * Data model for a plant
+ * Data model for a plant.
  */
 data class Plant(
     @StringRes val plantName: Int = 0,

@@ -4,7 +4,13 @@ import com.myportfolio.myplantingapp.R
 import com.myportfolio.myplantingapp.model.Plant
 
 /**
- * App preview for medium screens
+ * (PT-BR)
+ * Esta é uma classe que representa os estados de UI do aplicativo.
+ * O aplicativo pode acessar e alterar estes valores para decidir como construir a UI.
+ *
+ * (EN)
+ * This is a class that represents the app's UI state.
+ * The app can access and alter these values to decide how to build the UI.
  */
 data class AppUiState(
     val currentPlant: Plant = Plant(
