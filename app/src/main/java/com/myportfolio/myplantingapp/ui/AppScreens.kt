@@ -99,7 +99,7 @@ fun MyPlantingApp(
                     },
                     onSearchBarSearch = {
                         viewModel.updateSearchBarState(false)
-                        viewModel.findSearchResults(currentContext)
+                        viewModel.findSearchResults(it, currentContext)
                         viewModel.addToSearchBarHistory(it)
                     },
                     onSearchBarActiveChange = {
@@ -336,7 +336,9 @@ fun AppSearchBar(
     ) {
         SearchBar(
             query = searchBarText,
-            onQueryChange = { onQueryChange(it) },
+            onQueryChange = {
+                onQueryChange(it)
+            },
             onSearch = {
                 onSearch(it)
             },
@@ -344,8 +346,12 @@ fun AppSearchBar(
             onActiveChange = {
                 onActiveChange(it)
             },
-            placeholder = { Text("Which plant are you looking for?") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            placeholder = {
+                Text("Which plant are you looking for?")
+            },
+            leadingIcon = {
+                Icon(Icons.Default.Search, contentDescription = null)
+            },
             trailingIcon = {
                 if (searchBarText != "") {
                     Icon(
@@ -366,7 +372,10 @@ fun AppSearchBar(
             searchBarHistory.asReversed().forEach {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(12.dp)
+                    modifier = Modifier.padding(12.dp).clickable {
+                        onSearch(it)
+                        onQueryChange(it)
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,

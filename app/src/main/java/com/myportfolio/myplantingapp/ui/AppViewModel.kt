@@ -10,7 +10,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
 /**
- * The ViewModel class
+ * (PT-BR)
+ * Esta é a classe da ViewModel. Ela gerencia os dados exibidos pelos composables e mantém uma
+ * instância do estado de UI do aplicativo.
+ * A ViewModel sobrevive a mudanças de configuração, como rotações de tela, garantindo que os dados
+ * sejam preservados ao longo do ciclo de vida dos componentes de UI.
+ *
+ * (EN)
+ * This is the ViewModel class. It manages the data displayed by the composables and holds an
+ * instance of the app's UI state.
+ * The ViewModel survives configuration changes like screen rotations, ensuring that the data is
+ * preserved across the lifecycle of the UI components.
  */
 class AppViewModel : ViewModel() {
 
@@ -62,22 +72,30 @@ class AppViewModel : ViewModel() {
     }
 
     fun addToSearchBarHistory(searchText: String) {
-        if (searchText != "") {
-            val newHistory: MutableList<String> = mutableListOf()
-            newHistory.addAll(uiState.value.searchBarHistory)
-            newHistory.add(searchText)
-            _uiState.update {
-                it.copy(searchBarHistory = newHistory)
+        val searchHistory = uiState.value.searchBarHistory
+        if (searchText == "" || searchText == searchHistory.lastOrNull()) {
+            return
+        }
+        val newHistory: MutableList<String> = mutableListOf()
+        if (searchHistory.isNotEmpty()) {
+            newHistory.addAll(searchHistory)
+            if (searchHistory.contains(searchText)) {
+                newHistory.remove(searchText)
             }
+        }
+        newHistory.add(searchText)
+
+        _uiState.update {
+            it.copy(searchBarHistory = newHistory)
         }
     }
 
-    fun findSearchResults(context: Context) {
+    fun findSearchResults(searchText: String, context: Context) {
         val newSearchResultList: MutableList<Plant> = mutableListOf()
         plantList.forEach {
             if (
                 context.resources.getString(it.plantName)
-                    .contains(uiState.value.searchBarText, ignoreCase = true)
+                    .contains(searchText, ignoreCase = true)
             ) {
                 newSearchResultList.add(it)
             }
