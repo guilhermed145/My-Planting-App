@@ -4,7 +4,11 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 
 /**
- * Data model for a plant.
+ * (PT-BR)
+ * Esta classe representa um modelo de uma planta, contendo todos os dados necessários.
+ *
+ * (EN)
+ * This class represents a plant model, holding all the basic data needed.
  */
 data class Plant(
     @StringRes val plantName: Int = 0,

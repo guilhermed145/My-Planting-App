@@ -3,8 +3,11 @@ package com.myportfolio.myplantingapp.data
 import com.myportfolio.myplantingapp.R
 import com.myportfolio.myplantingapp.model.Plant
 
-/**
- * Singleton that provides all the plants data.
+/**(PT-BR)
+ * Singleton que fornece dados de todas as plantas usadas no aplicativo.
+ *
+ * (EN)
+ * Singleton that provides data for all the plants used in the app.
  */
 object PlantsDataProvider {
     val plantList: List<Plant> = listOf(
