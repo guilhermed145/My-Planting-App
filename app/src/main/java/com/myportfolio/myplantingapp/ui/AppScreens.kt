@@ -372,10 +372,13 @@ fun AppSearchBar(
             searchBarHistory.asReversed().forEach {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(12.dp).clickable {
-                        onSearch(it)
-                        onQueryChange(it)
-                    }
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .fillMaxWidth()
+                        .clickable {
+                            onSearch(it)
+                            onQueryChange(it)
+                        }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
