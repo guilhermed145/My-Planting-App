@@ -16,7 +16,15 @@ import com.myportfolio.myplantingapp.ui.theme.MyPlantingAppTheme
 import com.myportfolio.myplantingapp.ui.MyPlantingApp
 
 /**
- * The activity for the app.
+ * (PT-BR)
+ * Esta é a activity principal do aplicativo.
+ * Quando criada, verifica qual o tamanho da tela do dispositivo e altera o tamanho dos componentes
+ * de UI dependendo da largura da tela.
+ *
+ * (EN)
+ * This is the app's main Activity.
+ * When created, it checks the device's screen size and adjusts the size of the UI components
+ * depending on the screen width.
  */
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -38,7 +46,12 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * Main app preview.
+ * (PT-BR)
+ * Este Composable mostra uma pré-visualização da UI do aplicativo sendo executado em uma tela de
+ * tamanho pequeno.
+ *
+ * (EN)
+ * This Composable shows a preview of the app's UI running on a small-sized screen.
  */
 @Preview(showBackground = true)
 @Composable
@@ -49,7 +62,12 @@ fun AppPreview() {
 }
 
 /**
- * App preview for medium screens.
+ * (PT-BR)
+ * Este Composable mostra uma pré-visualização da UI do aplicativo sendo executado em uma tela de
+ * tamanho médio.
+ *
+ * (EN)
+ * This Composable shows a preview of the app's UI running on a medium-sized screen.
  */
 @Preview(showBackground = true, widthDp = 700)
 @Composable
@@ -60,7 +78,12 @@ fun AppPreviewMediumSize() {
 }
 
 /**
- * App preview for large screens.
+ * (PT-BR)
+ * Este Composable mostra uma pré-visualização da UI do aplicativo sendo executado em uma tela de
+ * tamanho grande.
+ *
+ * (EN)
+ * This Composable shows a preview of the app's UI running on a big-sized screen.
  */
 @Preview(showBackground = true, widthDp = 1000)
 @Composable

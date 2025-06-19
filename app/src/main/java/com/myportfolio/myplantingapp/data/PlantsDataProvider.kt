@@ -3,7 +3,8 @@ package com.myportfolio.myplantingapp.data
 import com.myportfolio.myplantingapp.R
 import com.myportfolio.myplantingapp.model.Plant
 
-/**(PT-BR)
+/**
+ * (PT-BR)
  * Singleton que fornece dados de todas as plantas usadas no aplicativo.
  *
  * (EN)
