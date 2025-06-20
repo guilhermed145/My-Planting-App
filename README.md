@@ -29,8 +29,8 @@ The app provides a variety of information about different plants along with prac
 
 
 # 📸 Screenshots
-![MyPlantingApp - Main Screen Small](https://github.com/user-attachments/assets/27c0414f-76a9-47b4-883d-a6db16bc4d98)
-![MyPlantingApp - Onion Search Small](https://github.com/user-attachments/assets/363f35d3-08a2-466c-a0ff-528684f51a5e)
-![MyPlantingApp - Plant Info Small](https://github.com/user-attachments/assets/5bba2e70-f545-4d8f-a688-e73dfb178357)
+![MyPlantingApp - Main Screen Small](https://github.com/user-attachments/assets/c835942f-2565-451e-a4bc-7e8927a649ae)
+![MyPlantingApp - Onion Search Small](https://github.com/user-attachments/assets/86d2a4ae-cfe7-4902-bae1-18311ac18d32)
+![MyPlantingApp - Plant Info Small](https://github.com/user-attachments/assets/a16933b9-95aa-4775-9b21-1cbcfdd5a124)
 ![MyPlantingApp - Main Screen Tablet Small](https://github.com/user-attachments/assets/670f48e8-dd3c-4d17-9876-7ea0cf12aa51)
 ![MyPlantingApp - Plant Info Tablet Small](https://github.com/user-attachments/assets/0adeb60c-9ea0-4801-89af-1e9d96b875f6)
